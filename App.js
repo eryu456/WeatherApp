@@ -9,7 +9,11 @@ export default function App() {
   const [error, setError] = useState(null);
   const [lat, setLat] = useState(44);
   const [lon, setLon] = useState(-79);
-  const [weather, setWeather] = useState({});
+  const [weather, setWeather] = useState({
+    current: {},
+    daily: {},
+    alerts: {}
+  });
   const [unit, setUnit] = useState(`metric`);
   const OPEN_API = "30374f93c545aa34a2ac616c7d07d46f";
   const GEOCODE_API = "AIzaSyCk4bjICPjyZ5XRCMNMn8xxB4dB88TnUhs";
@@ -49,7 +53,7 @@ export default function App() {
 
   return (
   <View style={styles.container}>
-    <Text>{JSON.stringify(weather.current.temp)} C</Text>
+    <Text>{weather.current.temp} C</Text>
     <StatusBar style="auto" />
   </View>
   );
@@ -72,8 +76,3 @@ const styles = StyleSheet.create({
     padding: 5,
   },
 });
-
-
-const LocationSearch = ({
-
-})
