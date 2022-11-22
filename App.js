@@ -1,8 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, TextInput, Button, ScrollView, Image } from "react-native";
-import 'intl';
-import 'intl/locale-data/jsonp/en';
+import XDate, { toString, getDate } from "xdate";
 
 export default function App() {
   const [location, setLocation] = useState("toronto");
@@ -15,6 +14,8 @@ export default function App() {
     alerts: {}
   });
   const [cityName, setcityName] = useState("Toronto, CA")
+  const controller = new AbortController();
+  const signal = controller.signal;
 
   const OPEN_API = "30374f93c545aa34a2ac616c7d07d46f";
   const GEOCODE_API = "AIzaSyCk4bjICPjyZ5XRCMNMn8xxB4dB88TnUhs";
@@ -49,6 +50,7 @@ export default function App() {
     }
     const data = await res.json();
     setWeather(data);
+    return () => controller.abort();
   };
 
 
@@ -161,9 +163,8 @@ const LocationSearch = ({
 const FutureForecast = ({ day }) => {
 
   const dayWeek = (dayData) => {
-    const options = { weekday: 'short' };
-    const dayDate = new Date(dayData.dt * 1000);
-    return (new Intl.DateTimeFormat('en-CA', options).format(dayDate.getDay()));
+    const dayDate = new XDate(dayData * 1000);
+    return (dayDate.toString('ddd'));
   };
   // {dayWeek(day)
   return (
@@ -172,8 +173,8 @@ const FutureForecast = ({ day }) => {
         <View style={styles.weeklyDetails}>
           <Image style={styles.weekIcon} source={{ url: `http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png` }} resizeMode={"contain"} />
           <View styles={styles.scrollBox}>
-            <Text styles={styles.statLabel}>{dayWeek(day)}</Text>
-            <Text style={styles.label}>{Math.round(parseFloat(day.temp.day))}°</Text>
+            <Text styles={styles.statLabel}>{dayWeek(day.dt)}</Text>
+            <Text style={styles.label}>{Math.round(day.temp.day)}°</Text>
           </View>
           <View style={styles.scrollBox}>
             <Text style={styles.statLabel}>Feels Like</Text>
