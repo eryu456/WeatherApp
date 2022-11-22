@@ -75,54 +75,54 @@ export default function App() {
       <View style={styles.detailContainer}>
         <View style={styles.currentDetails}>
           <View style={styles.StatBox}>
-            <Text style={styles.label}>Min</Text>
+            <Text style={styles.statLabel}>Min</Text>
             <Text style={styles.label}>{Math.round(weather.current.feels_like)}°</Text>
           </View>
           <View style={styles.StatBox}>
-            <Text style={styles.label}>Feels Like</Text>
+            <Text style={styles.statLabel}>Feels Like</Text>
             <Text style={styles.label}>{Math.round(weather.daily[0].temp.min)}°</Text>
           </View>
           <View style={styles.StatBox}>
-            <Text style={styles.label}>Max</Text>
+            <Text style={styles.statLabel}>Max</Text>
             <Text style={styles.label}>{Math.round(weather.daily[0].temp.max)}°</Text>
           </View>
         </View>
         <View style={styles.currentDetails}>
           <View style={styles.StatBox}>
-            <Text style={styles.label}>Wind</Text>
+            <Text style={styles.statLabel}>Wind</Text>
             <Text style={styles.label}>{Math.round(weather.current.wind_speed)} m/s</Text>
           </View>
           <View style={styles.StatBox}>
-            <Text style={styles.label}>Humidity</Text>
+            <Text style={styles.statLabel}>Humidity</Text>
             <Text style={styles.label}>{weather.current.humidity}%</Text>
           </View>
           <View style={styles.StatBox}>
-            <Text style={styles.label}>Rain</Text>
+            <Text style={styles.statLabel}>Rain</Text>
             <Text style={styles.label}>{weather.daily > 0 ? weather.daily[0].temp.rain : "0"}mm</Text>
           </View>
         </View>
       </View>
       <ScrollView contentContainerStyle={styles.forecastScroll}>
-        <View style={styles.detailContainer}>
-          {weather.daily[1] ? <FutureForecast day={weather.daily[1]} index={1} /> : null}
+        <View style={styles.scrollContainer}>
+          {weather.daily[1] ? <FutureForecast day={weather.daily[1]} /> : null}
         </View>
-        <View style={styles.detailContainer}>
-          {weather.daily[2] ? <FutureForecast day={weather.daily[2]} index={2} /> : null}
+        <View style={styles.scrollContainer}>
+          {weather.daily[2] ? <FutureForecast day={weather.daily[2]} /> : null}
         </View>
-        <View style={styles.detailContainer}>
-          {weather.daily[3] ? <FutureForecast day={weather.daily[3]} index={3} /> : null}
+        <View style={styles.scrollContainer}>
+          {weather.daily[3] ? <FutureForecast day={weather.daily[3]} /> : null}
         </View>
-        <View style={styles.detailContainer}>
-          {weather.daily[4] ? <FutureForecast day={weather.daily[4]} index={4} /> : null}
+        <View style={styles.scrollContainer}>
+          {weather.daily[4] ? <FutureForecast day={weather.daily[4]} /> : null}
         </View>
-        <View style={styles.detailContainer}>
-          {weather.daily[5] ? <FutureForecast day={weather.daily[5]} index={5} /> : null}
+        <View style={styles.scrollContainer}>
+          {weather.daily[5] ? <FutureForecast day={weather.daily[5]} /> : null}
         </View>
-        <View style={styles.detailContainer}>
-          {weather.daily[6] ? <FutureForecast day={weather.daily[6]} index={6} /> : null}
+        <View style={styles.scrollContainer}>
+          {weather.daily[6] ? <FutureForecast day={weather.daily[6]} /> : null}
         </View>
-        <View style={styles.detailContainer}>
-          {weather.daily[7] ? <FutureForecast day={weather.daily[7]} index={7} /> : null}
+        <View style={styles.scrollContainer}>
+          {weather.daily[7] ? <FutureForecast day={weather.daily[7]} /> : null}
         </View>
       </ScrollView>
     </View >
@@ -158,26 +158,41 @@ const LocationSearch = ({
   )
 }
 
-const FutureForecast = ({ day, index }) => {
+const FutureForecast = ({ day }) => {
 
   const dayWeek = (dayData) => {
     const options = { weekday: 'short' };
     const dayDate = new Date(dayData.dt * 1000);
     return (new Intl.DateTimeFormat('en-CA', options).format(dayDate.getDay()));
   };
-
+  // {dayWeek(day)
   return (
-    <View styles={styles.detailContainer}>
-      <View styles={styles.StatBox}>
-        <Text styles={styles.weekDay}>{dayWeek(day)}</Text>
+    <View styles={styles.weekContainer}>
+      <View styles={styles.scrollBox}>
+        <View style={styles.weeklyDetails}>
+          <Image style={styles.weekIcon} source={{ url: `http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png` }} resizeMode={"contain"} />
+          <View styles={styles.scrollBox}>
+            <Text styles={styles.statLabel}>{dayWeek(day)}</Text>
+            <Text style={styles.label}>{Math.round(parseFloat(day.temp.day))}°</Text>
+          </View>
+          <View style={styles.scrollBox}>
+            <Text style={styles.statLabel}>Feels Like</Text>
+            <Text style={styles.label}>{Math.round(day.temp.min)}°</Text>
+          </View>
+          <View style={styles.scrollBox}>
+            <Text style={styles.statLabel}>Min</Text>
+            <Text style={styles.label}>{Math.round(day.feels_like)}°</Text>
+          </View>
+          <View style={styles.scrollBox}>
+            <Text style={styles.statLabel}>Max</Text>
+            <Text style={styles.label}>{Math.round(day.temp.max)}°</Text>
+          </View>
+          <View style={styles.scrollBox}>
+            <Text style={styles.statLabel}>Wind</Text>
+            <Text style={styles.label}>{Math.round(day.wind_speed)} m/s</Text>
+          </View>
+        </View>
       </View>
-      <Image styles={styles.weekIcon}
-        source={{
-          url: `http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`
-        }}
-        resizeMode={"contain"}
-      />
-      <Text style={styles.label}>{Math.round(day.temp.day)}°</Text>
     </View>
   );
 }
@@ -220,6 +235,41 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
     marginBottom: 15,
   },
+  scrollBox: {
+    display: "flex",
+    padding: 10,
+    alignContent: "center",
+    alignItems: "center",
+  },
+  scrollContainer: {
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: "white",
+    width: 150,
+    height: "90%",
+    margin: 10,
+    alignItems: "center",
+  },
+  forecastScroll: {
+    flexGrow: 1,
+    flex: 1,
+    minWidth: "95%",
+    alignItems: "center",
+    flexDirection: "row",
+    horizontal: true,
+  },
+  weekContainer: {
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: "white",
+    flexDirection: "row",
+    width: "95%",
+    margin: 10,
+  },
+  dayText: {
+    fontSize: 30,
+    fontWeight: "bold",
+  },
   weatherSearch: {
     height: 50,
     margin: 20,
@@ -240,13 +290,19 @@ const styles = StyleSheet.create({
     alignContent: "center",
     padding: 10,
   },
+  weeklyDetails: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+    alignContent: "space-between",
+    justifyContent: "flex-end"
+  },
   textTitle: {
     borderRadius: 5,
   },
   currentContainer: {
     padding: 5,
     alignContent: "center",
-    // backgroundColor: "blue",
     justifyContent: "center",
   },
   detailContainer: {
@@ -254,19 +310,11 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     display: "flex",
     margin: 20,
-    width: "95%",
+    width: "90%",
     alignContent: "space-between",
     alignItems: "center",
     justifyContent: "space-between",
     borderRadius: 20,
-  },
-  forecastScroll: {
-    flexGrow: 1,
-    flex: 1,
-    minWidth: "95%",
-    alignItems: "center",
-    justifyContent: "space-around",
-    alignContent: "center",
   },
   StatBox: {
     display: "flex",
@@ -277,6 +325,9 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12
   },
+  statLabel: {
+    fontSize: 15
+  },
   futureContainer: {
     padding: 10,
     backgroundColor: "white",
@@ -286,7 +337,8 @@ const styles = StyleSheet.create({
     alignItems: 10
   },
   weekIcon: {
-    width: 50,
-    height: 50,
+    width: 70,
+    height: 70,
+    alignItems: "center",
   },
 });
