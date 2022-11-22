@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, TextInput, Button, ScrollView } from "react-native";
+import { StyleSheet, Text, View, TextInput, Button, ScrollView, Image } from "react-native";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { NativeBaseProvider, Box } from "native-base";
@@ -104,11 +104,11 @@ export default function App() {
           </View>
         </View>
       </View>
-      {/* <ScrollView>
+      <ScrollView>
         <View style={styles.detailContainer}>
           <FutureForecast day={weather.daily[1]} />
         </View>
-      </ScrollView> */}
+      </ScrollView>
     </View >
   );
 };
@@ -142,31 +142,29 @@ const LocationSearch = ({
   )
 }
 
-// const FutureForecast = ({
-//   day
-// }) => {
+const FutureForecast = ({ day }) => {
 
-//   const dayWeek = ({ data }) => {
-//     const options = { weekday: 'short' };
-//     const day = new Date(data.dt * 1000);
-//     return (new Intl.DateTimeFormat('en-CA', options).format(day.getDay()));
-//   };
+  const dayWeek = ({ data }) => {
+    const options = { weekday: 'short' };
+    const day = new Date(data.dt * 1000);
+    return (new Intl.DateTimeFormat('en-CA', options).format(day.getDay()));
+  };
 
-//   return (
-//     <View styles={styles.detailContainer}>
-//       <View styles={styles.StatBox}>
-//         <Text styles={styles.weekDay}>{dayWeek(day)}</Text>
-//       </View>
-//       <Image styles={styles.weekIcon}>
-//         source={{
-//           url: `http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`
-//         }}
-//         resizeMode={"contain"}
-//       </Image>
-//       <Text style={styles.label}>{week.temp.day}°</Text>
-//     </View>
-//   );
-// }
+  return (
+    <View styles={styles.detailContainer}>
+      <View styles={styles.StatBox}>
+        <Text styles={styles.weekDay}>dayWeek = {day}</Text>
+      </View>
+      <Image styles={styles.weekIcon}
+        source={{
+          url: `http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`
+        }}
+        resizeMode={"contain"}
+      />
+      <Text style={styles.label}>{day.temp.day}°</Text>
+    </View>
+  );
+}
 
 
 const styles = StyleSheet.create({
