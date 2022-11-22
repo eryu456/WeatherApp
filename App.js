@@ -4,6 +4,8 @@ import { StyleSheet, Text, View, TextInput, Button, ScrollView, Image } from "re
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { NativeBaseProvider, Box } from "native-base";
+import 'intl';
+import 'intl/locale-data/jsonp/en';
 
 dayjs.extend(customParseFormat);
 
@@ -13,8 +15,8 @@ export default function App() {
   const [lng, setLng] = useState(-79.3832);
   const [unit, setUnit] = useState(`metric`);
   const [weather, setWeather] = useState({
-    current: { weather: [{ description: `` }] },
-    daily: [{ temp: [{ min: ``, max: ``, rain: `` }] }],
+    current: { weather: [{ description: '' }] },
+    daily: [{ temp: [{ min: '', max: '', rain: '' }] }],
     alerts: {}
   });
   const [cityName, setcityName] = useState("Toronto, ON")
@@ -33,8 +35,8 @@ export default function App() {
     const data = await res.json();
     setLat(data.results[0].geometry.location.lat);
     setLng(data.results[0].geometry.location.lng);
-    // setcityName((data.results[0].address_components[1].long_name) + ", " +
-    //   (data.results[0].address_components[4].short_name))
+    setcityName((data.results[0].address_components[1].long_name) + ", " +
+      (data.results[0].address_components[4].short_name))
     // if (data.results[0].address_components[4].short_name == "US") {
     //   setUnit('imperial')
     // }
@@ -70,7 +72,7 @@ export default function App() {
         fetchLatLon={fetchLatLon}
       />
       <Text style={styles.locationText}>{weather.current.weather[0].description}</Text>
-      <Text style={styles.locationText}>{weather.timezone}</Text>
+      <Text style={styles.locationText}>{cityName}</Text>
       <View style={styles.currentContainer}>
         <Text style={styles.textCurrent}>{Math.round(weather.current.temp)}°</Text>
       </View>
@@ -106,7 +108,7 @@ export default function App() {
       </View>
       <ScrollView>
         <View style={styles.detailContainer}>
-          <FutureForecast day={weather.daily[1]} />
+          {weather.daily[1] ? <FutureForecast day={weather.daily[1]} /> : null}
         </View>
       </ScrollView>
     </View >
@@ -144,16 +146,16 @@ const LocationSearch = ({
 
 const FutureForecast = ({ day }) => {
 
-  const dayWeek = ({ data }) => {
+  const dayWeek = (dayData) => {
     const options = { weekday: 'short' };
-    const day = new Date(data.dt * 1000);
-    return (new Intl.DateTimeFormat('en-CA', options).format(day.getDay()));
+    const dayDate = new Date(dayData.dt * 1000);
+    return (new Intl.DateTimeFormat('en-CA', options).format(dayDate.getDay()));
   };
 
   return (
     <View styles={styles.detailContainer}>
       <View styles={styles.StatBox}>
-        <Text styles={styles.weekDay}>dayWeek = {day}</Text>
+        <Text styles={styles.weekDay}>{dayWeek(day)}</Text>
       </View>
       <Image styles={styles.weekIcon}
         source={{
@@ -259,5 +261,3 @@ const styles = StyleSheet.create({
     height: 50,
   },
 });
-
-
