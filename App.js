@@ -1,25 +1,23 @@
 
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, TextInput, Button, ScrollView, Image } from "react-native";
-import XDate, { toString, getDate } from "xdate";
+import XDate from "xdate";
 
 export default function App() {
   const [location, setLocation] = useState("toronto");
   const [lat, setLat] = useState(44.6532);
   const [lng, setLng] = useState(-79.3832);
-  const [unit, setUnit] = useState(`metric`);
   const [weather, setWeather] = useState({
     current: { weather: [{ description: '' }] },
     daily: [{ temp: [{ min: '', max: '', rain: '' }] }],
     alerts: {}
   });
-  const [cityName, setcityName] = useState("Toronto, CA")
-  const controller = new AbortController();
-  const signal = controller.signal;
+  const [cityName, setcityName] = useState("Toronto, CA");
 
   const OPEN_API = "30374f93c545aa34a2ac616c7d07d46f";
   const GEOCODE_API = "AIzaSyCk4bjICPjyZ5XRCMNMn8xxB4dB88TnUhs";
 
+  //fetch latitude and longitude given city/postalcode
   const fetchLatLon = async () => {
     const res = await fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?`
@@ -34,27 +32,24 @@ export default function App() {
     const numAddressElements = data.results[0].address_components.length;
     setcityName((data.results[0].address_components[numAddressElements - 2].long_name) + ", " +
       (data.results[0].address_components[numAddressElements - 1].short_name))
-    // if (data.results[0].address_components[4].short_name == "US") {
-    //   setUnit('imperial')
-    // }
-  };
+  }
 
 
+  //fetch local weather data given latitude and longitude from fetchLatLon
   const fetchWeather = async () => {
     const res = await fetch(
       `https://api.openweathermap.org/data/2.5/onecall?`
-      + `lat=${lat}&lon=${lng}&exclude={}&appid=${OPEN_API}&units=${unit}`
+      + `lat=${lat}&lon=${lng}&exclude={}&appid=${OPEN_API}&units=metric`
     );
     if (!res.ok) {
       throw new Error(`OPENWEATHER HTTPS ERROR: ${res.status}`);
     }
     const data = await res.json();
     setWeather(data);
-    return () => controller.abort();
   };
 
 
-
+  //refresh app once latitude and longitude have changed
   useEffect(() => {
     fetchWeather()
   }, [lat, lng]);
@@ -131,14 +126,13 @@ export default function App() {
   );
 };
 
-
+//Search bar functionality
 const LocationSearch = ({
   location, setLocation,
   lat, setLat,
   lon, setLon,
   cityName, setcityName,
   fetchLatLon,
-  // fetchWeather
 }) => {
 
   const onChangeText = (newText) => {
@@ -159,14 +153,14 @@ const LocationSearch = ({
     </View>
   )
 }
-
+//7 day weather forecast functionality
 const FutureForecast = ({ day }) => {
 
   const dayWeek = (dayData) => {
     const dayDate = new XDate(dayData * 1000);
     return (dayDate.toString('ddd'));
   };
-  // {dayWeek(day)
+
   return (
     <View styles={styles.weekContainer}>
       <View styles={styles.scrollBox}>
@@ -177,12 +171,14 @@ const FutureForecast = ({ day }) => {
             <Text style={styles.label}>{Math.round(day.temp.day)}°</Text>
           </View>
           <View style={styles.scrollBox}>
+            <Text styles={styles.statLabel}>{dayWeek(day.dt)}</Text>
+            <Text style={styles.label}>{Math.round(day.temp.day)}°</Text>
             <Text style={styles.statLabel}>Feels Like</Text>
-            <Text style={styles.label}>{Math.round(day.temp.min)}°</Text>
+            <Text style={styles.label}>{Math.round(day.feels_like.day)}°</Text>
           </View>
           <View style={styles.scrollBox}>
             <Text style={styles.statLabel}>Min</Text>
-            <Text style={styles.label}>{Math.round(day.feels_like)}°</Text>
+            <Text style={styles.label}>{Math.round(day.temp.min)}°</Text>
           </View>
           <View style={styles.scrollBox}>
             <Text style={styles.statLabel}>Max</Text>
@@ -205,20 +201,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'dodgerblue',
     alignItems: 'center',
   },
-  textCurrent: {
-    textAlign: "center",
-    borderRadius: 5,
-    width: "50%",
-    fontSize: 50,
-    fontWeight: "bold",
-    // backgroundColor: "white"
-  },
-  searchContainer: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 35,
-  },
   locationText: {
     display: "flex",
     justifyContent: "center",
@@ -235,6 +217,36 @@ const styles = StyleSheet.create({
     color: "black",
     textTransform: "capitalize",
     marginBottom: 15,
+  },
+  textCurrent: {
+    textAlign: "center",
+    borderRadius: 5,
+    width: "50%",
+    fontSize: 50,
+    fontWeight: "bold",
+  },
+  searchContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 35,
+  },
+  currentContainer: {
+    padding: 5,
+    alignContent: "center",
+    justifyContent: "center",
+  },
+  StatBox: {
+    display: "flex",
+    alignItems: "center",
+    alignContent: "center",
+    justifyContent: "center",
+  },
+  label: {
+    fontSize: 12
+  },
+  statLabel: {
+    fontSize: 15
   },
   scrollBox: {
     display: "flex",
@@ -301,11 +313,6 @@ const styles = StyleSheet.create({
   textTitle: {
     borderRadius: 5,
   },
-  currentContainer: {
-    padding: 5,
-    alignContent: "center",
-    justifyContent: "center",
-  },
   detailContainer: {
     padding: 5,
     backgroundColor: "white",
@@ -317,18 +324,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderRadius: 20,
   },
-  StatBox: {
-    display: "flex",
-    alignItems: "center",
-    alignContent: "center",
-    justifyContent: "center",
-  },
-  label: {
-    fontSize: 12
-  },
-  statLabel: {
-    fontSize: 15
-  },
   futureContainer: {
     padding: 10,
     backgroundColor: "white",
@@ -338,8 +333,8 @@ const styles = StyleSheet.create({
     alignItems: 10
   },
   weekIcon: {
-    width: 70,
-    height: 70,
+    width: 80,
+    height: 80,
     alignItems: "center",
   },
 });
