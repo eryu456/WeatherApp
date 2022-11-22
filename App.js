@@ -8,15 +8,16 @@ import { NativeBaseProvider, Box } from "native-base";
 dayjs.extend(customParseFormat);
 
 export default function App() {
-  const [location, setLocation] = useState("L4G7W7");
+  const [location, setLocation] = useState("toronto");
   const [lat, setLat] = useState(44.6532);
   const [lng, setLng] = useState(-79.3832);
   const [unit, setUnit] = useState(`metric`);
   const [weather, setWeather] = useState({
     current: { weather: [{ description: `` }] },
-    daily: {},
+    daily: [{ temp: [{ min: ``, max: ``, rain: `` }] }],
     alerts: {}
   });
+  const [cityName, setcityName] = useState("Toronto, ON")
 
   const OPEN_API = "30374f93c545aa34a2ac616c7d07d46f";
   const GEOCODE_API = "AIzaSyCk4bjICPjyZ5XRCMNMn8xxB4dB88TnUhs";
@@ -32,6 +33,8 @@ export default function App() {
     const data = await res.json();
     setLat(data.results[0].geometry.location.lat);
     setLng(data.results[0].geometry.location.lng);
+    // setcityName((data.results[0].address_components[1].long_name) + ", " +
+    //   (data.results[0].address_components[4].short_name))
     // if (data.results[0].address_components[4].short_name == "US") {
     //   setUnit('imperial')
     // }
@@ -66,12 +69,47 @@ export default function App() {
         setLat={setLat}
         fetchLatLon={fetchLatLon}
       />
-      <Text style={styles.locationText}>Timezone: {weather.timezone}</Text>
+      <Text style={styles.locationText}>{weather.current.weather[0].description}</Text>
+      <Text style={styles.locationText}>{weather.timezone}</Text>
       <View style={styles.currentContainer}>
         <Text style={styles.textCurrent}>{Math.round(weather.current.temp)}°</Text>
       </View>
-      <Text style={styles.locationText}>{weather.current.weather[0].description}</Text>
-    </View>
+      <View style={styles.detailContainer}>
+        <View style={styles.currentDetails}>
+          <View style={styles.StatBox}>
+            <Text style={styles.label}>Min</Text>
+            <Text style={styles.label}>{Math.round(weather.current.feels_like)}°</Text>
+          </View>
+          <View style={styles.StatBox}>
+            <Text style={styles.label}>Feels Like</Text>
+            <Text style={styles.label}>{Math.round(weather.daily[0].temp.min)}°</Text>
+          </View>
+          <View style={styles.StatBox}>
+            <Text style={styles.label}>Max</Text>
+            <Text style={styles.label}>{Math.round(weather.daily[0].temp.max)}°</Text>
+          </View>
+        </View>
+        <View style={styles.currentDetails}>
+          <View style={styles.StatBox}>
+            <Text style={styles.label}>Wind</Text>
+            <Text style={styles.label}>{Math.round(weather.current.wind_speed)} m/s</Text>
+          </View>
+          <View style={styles.StatBox}>
+            <Text style={styles.label}>Humidity</Text>
+            <Text style={styles.label}>{weather.current.humidity}%</Text>
+          </View>
+          <View style={styles.StatBox}>
+            <Text style={styles.label}>Rain</Text>
+            <Text style={styles.label}>{weather.daily > 0 ? weather.daily[0].temp.rain : "0"}mm</Text>
+          </View>
+        </View>
+      </View>
+      {/* <ScrollView>
+        <View style={styles.detailContainer}>
+          <FutureForecast day={weather.daily[1]} />
+        </View>
+      </ScrollView> */}
+    </View >
   );
 };
 
@@ -80,6 +118,7 @@ const LocationSearch = ({
   location, setLocation,
   lat, setLat,
   lon, setLon,
+  cityName, setcityName,
   fetchLatLon,
   // fetchWeather
 }) => {
@@ -103,6 +142,32 @@ const LocationSearch = ({
   )
 }
 
+// const FutureForecast = ({
+//   day
+// }) => {
+
+//   const dayWeek = ({ data }) => {
+//     const options = { weekday: 'short' };
+//     const day = new Date(data.dt * 1000);
+//     return (new Intl.DateTimeFormat('en-CA', options).format(day.getDay()));
+//   };
+
+//   return (
+//     <View styles={styles.detailContainer}>
+//       <View styles={styles.StatBox}>
+//         <Text styles={styles.weekDay}>{dayWeek(day)}</Text>
+//       </View>
+//       <Image styles={styles.weekIcon}>
+//         source={{
+//           url: `http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`
+//         }}
+//         resizeMode={"contain"}
+//       </Image>
+//       <Text style={styles.label}>{week.temp.day}°</Text>
+//     </View>
+//   );
+// }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -116,7 +181,7 @@ const styles = StyleSheet.create({
     width: "50%",
     fontSize: 50,
     fontWeight: "bold",
-    backgroundColor: "white"
+    // backgroundColor: "white"
   },
   searchContainer: {
     display: "flex",
@@ -127,10 +192,11 @@ const styles = StyleSheet.create({
   locationText: {
     display: "flex",
     justifyContent: "center",
-    marginTop: 15,
-    fontSize: 20,
+    marginTop: 5,
+    fontSize: 15,
     color: "black",
-    backgroundColor: "white",
+    textTransform: "capitalize",
+    // backgroundColor: "white",
     marginBottom: 15,
   },
   weatherSearch: {
@@ -144,14 +210,55 @@ const styles = StyleSheet.create({
     marginTop: 30,
     color: "black",
   },
+  currentDetails: {
+    display: "flex",
+    flexDirection: "row",
+    width: "80%",
+    justifyContent: "space-around",
+    alignItems: "center",
+    alignContent: "center",
+    padding: 10,
+  },
   textTitle: {
     borderRadius: 5,
   },
   currentContainer: {
     padding: 5,
     alignContent: "center",
-    backgroundColor: "blue",
+    // backgroundColor: "blue",
     justifyContent: "center",
+  },
+  detailContainer: {
+    padding: 5,
+    backgroundColor: "white",
+    display: "flex",
+    margin: 20,
+    width: "95%",
+    alignContent: "space-between",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderRadius: 20,
+  },
+  StatBox: {
+    display: "flex",
+    alignItems: "center",
+    alignContent: "center",
+    justifyContent: "center",
+  },
+  label: {
+    fontSize: 12
+  },
+  futureContainer: {
+    padding: 10,
+    backgroundColor: "white",
+    borderRadius: 20,
+    display: "flex",
+    margin: 10,
+    alignItems: 10
+  },
+  weekIcon: {
+    width: 50,
+    height: 50,
   },
 });
 
