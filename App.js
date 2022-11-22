@@ -1,13 +1,8 @@
 
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, TextInput, Button, ScrollView, Image } from "react-native";
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import { NativeBaseProvider, Box } from "native-base";
 import 'intl';
 import 'intl/locale-data/jsonp/en';
-
-dayjs.extend(customParseFormat);
 
 export default function App() {
   const [location, setLocation] = useState("toronto");
@@ -19,7 +14,7 @@ export default function App() {
     daily: [{ temp: [{ min: '', max: '', rain: '' }] }],
     alerts: {}
   });
-  const [cityName, setcityName] = useState("Toronto, ON")
+  const [cityName, setcityName] = useState("Toronto, CA")
 
   const OPEN_API = "30374f93c545aa34a2ac616c7d07d46f";
   const GEOCODE_API = "AIzaSyCk4bjICPjyZ5XRCMNMn8xxB4dB88TnUhs";
@@ -35,8 +30,9 @@ export default function App() {
     const data = await res.json();
     setLat(data.results[0].geometry.location.lat);
     setLng(data.results[0].geometry.location.lng);
-    setcityName((data.results[0].address_components[1].long_name) + ", " +
-      (data.results[0].address_components[4].short_name))
+    const numAddressElements = data.results[0].address_components.length;
+    setcityName((data.results[0].address_components[numAddressElements - 2].long_name) + ", " +
+      (data.results[0].address_components[numAddressElements - 1].short_name))
     // if (data.results[0].address_components[4].short_name == "US") {
     //   setUnit('imperial')
     // }
@@ -71,7 +67,7 @@ export default function App() {
         setLat={setLat}
         fetchLatLon={fetchLatLon}
       />
-      <Text style={styles.locationText}>{weather.current.weather[0].description}</Text>
+      <Text style={styles.descripText}>{weather.current.weather[0].description}</Text>
       <Text style={styles.locationText}>{cityName}</Text>
       <View style={styles.currentContainer}>
         <Text style={styles.textCurrent}>{Math.round(weather.current.temp)}°</Text>
@@ -106,9 +102,27 @@ export default function App() {
           </View>
         </View>
       </View>
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.forecastScroll}>
         <View style={styles.detailContainer}>
-          {weather.daily[1] ? <FutureForecast day={weather.daily[1]} /> : null}
+          {weather.daily[1] ? <FutureForecast day={weather.daily[1]} index={1} /> : null}
+        </View>
+        <View style={styles.detailContainer}>
+          {weather.daily[2] ? <FutureForecast day={weather.daily[2]} index={2} /> : null}
+        </View>
+        <View style={styles.detailContainer}>
+          {weather.daily[3] ? <FutureForecast day={weather.daily[3]} index={3} /> : null}
+        </View>
+        <View style={styles.detailContainer}>
+          {weather.daily[4] ? <FutureForecast day={weather.daily[4]} index={4} /> : null}
+        </View>
+        <View style={styles.detailContainer}>
+          {weather.daily[5] ? <FutureForecast day={weather.daily[5]} index={5} /> : null}
+        </View>
+        <View style={styles.detailContainer}>
+          {weather.daily[6] ? <FutureForecast day={weather.daily[6]} index={6} /> : null}
+        </View>
+        <View style={styles.detailContainer}>
+          {weather.daily[7] ? <FutureForecast day={weather.daily[7]} index={7} /> : null}
         </View>
       </ScrollView>
     </View >
@@ -144,7 +158,7 @@ const LocationSearch = ({
   )
 }
 
-const FutureForecast = ({ day }) => {
+const FutureForecast = ({ day, index }) => {
 
   const dayWeek = (dayData) => {
     const options = { weekday: 'short' };
@@ -163,7 +177,7 @@ const FutureForecast = ({ day }) => {
         }}
         resizeMode={"contain"}
       />
-      <Text style={styles.label}>{day.temp.day}°</Text>
+      <Text style={styles.label}>{Math.round(day.temp.day)}°</Text>
     </View>
   );
 }
@@ -195,8 +209,15 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 15,
     color: "black",
+    marginBottom: 15,
+  },
+  descripText: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 5,
+    fontSize: 15,
+    color: "black",
     textTransform: "capitalize",
-    // backgroundColor: "white",
     marginBottom: 15,
   },
   weatherSearch: {
@@ -205,7 +226,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 15,
     borderRadius: 10,
-    minWidth: '80%',
+    minWidth: '90%',
     textAlign: "center",
     marginTop: 30,
     color: "black",
@@ -238,6 +259,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderRadius: 20,
+  },
+  forecastScroll: {
+    flexGrow: 1,
+    flex: 1,
+    minWidth: "95%",
+    alignItems: "center",
+    justifyContent: "space-around",
+    alignContent: "center",
   },
   StatBox: {
     display: "flex",
