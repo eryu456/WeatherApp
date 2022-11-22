@@ -47,6 +47,7 @@ export default function App() {
     const data = await res.json();
     setWeather(data);
   };
+  //testingtesting
 
 
   //refresh app once latitude and longitude have changed
