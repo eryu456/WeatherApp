@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, TextInput, Button, ScrollView, Image } from "react-native";
 import XDate from "xdate";
@@ -14,8 +13,6 @@ export default function App() {
   });
   const [cityName, setcityName] = useState("Toronto, CA");
 
-  const OPEN_API = "30374f93c545aa34a2ac616c7d07d46f";
-  const GEOCODE_API = "AIzaSyCk4bjICPjyZ5XRCMNMn8xxB4dB88TnUhs";
 
   //fetch latitude and longitude given city/postalcode
   const fetchLatLon = async () => {
